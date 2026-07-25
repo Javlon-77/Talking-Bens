@@ -3,328 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interaktiv Talking Ben & Smart AI</title>
+    <title>Talking Ben & Kimyoviy Laboratoriya</title>
     <style>
-        /* CSS3 Zamonaviy Stil va O'zgaruvchilar */
         :root {
-            --bg-color: #f0f4f8;
-            --primary-color: #4a3728;
-            --accent-color: #ff9f43;
+            --bg-home: #f3e9dc;
+            --bg-lab: #2c3e50;
+            --primary-color: #5c4033;
+            --accent-color: #e67e22;
             --text-color: #333;
             --card-bg: #ffffff;
-            --success-color: #10ac84;
-            --danger-color: #ee5253;
+            --danger-color: #e74c3c;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-home);
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: background 0.5s ease;
         }
 
         .container {
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            max-width: 480px;
+            padding: 15px;
         }
 
-        /* O'yin Sahifasi Dizayni */
         .game-card {
             background: var(--card-bg);
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             overflow: hidden;
             text-align: center;
-            padding: 30px 20px;
+            padding: 25px 20px;
             position: relative;
+            transition: all 0.5s ease;
+            border: 6px solid var(--primary-color);
         }
 
-        .admin-link-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #eee;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            text-decoration: none;
-            color: #666;
-            font-weight: bold;
+        /* Laboratoriya rejimi stili */
+        .game-card.lab-mode {
+            background: #34495e;
+            border-color: #16a085;
+            color: white;
+        }
+        .game-card.lab-mode h2, .game-card.lab-mode p {
+            color: #ecf0f1 !important;
         }
 
-        /* Ben Personaji Vizuali (CSS yordamida chizilgan sodda animatsion ko'rinish) */
+        /* Ben Personaji chizmasi */
         .ben-avatar-container {
-            width: 180px;
-            height: 180px;
-            margin: 20px auto;
-            background: #d2b48c;
+            width: 160px;
+            height: 160px;
+            margin: 15px auto;
+            background: #cd853f;
             border-radius: 50%;
-            border: 8px solid var(--primary-color);
+            border: 6px solid var(--primary-color);
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
         }
 
-        .ben-face {
-            width: 100%;
-            height: 100%;
-            position: relative;
+        .game-card.lab-mode .ben-avatar-container {
+            background: #b8860b;
+            border-color: #16a085;
         }
 
-        .ben-ear {
-            width: 40px;
-            height: 60px;
-            background: var(--primary-color);
-            position: absolute;
-            top: -10px;
-            border-radius: 20px;
-        }
+        .ben-face { width: 100%; height: 100%; position: relative; }
+        .ben-ear { width: 35px; height: 55px; background: var(--primary-color); position: absolute; top: -10px; border-radius: 20px; }
         .ben-ear.left { left: 10px; transform: rotate(-15deg); }
         .ben-ear.right { right: 10px; transform: rotate(15deg); }
+        
+        .ben-eye { width: 28px; height: 40px; background: white; border-radius: 50%; position: absolute; top: 45px; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
+        .ben-eye.left { left: 40px; }
+        .ben-eye.right { right: 42px; }
+        .ben-pupil { width: 12px; height: 12px; background: #222; border-radius: 50%; transition: transform 0.05s ease; }
+        
+        .ben-nose { width: 26px; height: 18px; background: #111; border-radius: 10px; position: absolute; top: 85px; left: 50%; transform: translateX(-50%); }
+        .ben-mouth { width: 55px; height: 12px; background: #660000; border-radius: 0 0 25px 25px; position: absolute; top: 115px; left: 50%; transform: translateX(-50%); transition: all 0.1s ease; }
 
-        .ben-eye {
-            width: 30px;
-            height: 45px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #333;
-        }
-        .ben-eye.left { left: 45px; }
-        .ben-eye.right { right: 45px; }
-
-        .ben-pupil {
-            width: 14px;
-            height: 14px;
-            background: #333;
-            border-radius: 50%;
-            transition: all 0.1s ease;
-        }
-
-        .ben-nose {
-            width: 30px;
-            height: 20px;
-            background: #222;
-            border-radius: 10px;
-            position: absolute;
-            top: 95px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .ben-mouth {
-            width: 60px;
-            height: 15px;
-            background: #8b0000;
-            border-radius: 0 0 30px 30px;
-            position: absolute;
-            top: 125px;
-            left: 50%;
-            transform: translateX(-50%);
-            transition: all 0.2s ease;
-        }
-
-        /* Animatsiyalar klaslari */
-        .ben-mouth.talking {
-            height: 35px;
-            animation: chew 0.2s infinite alternate;
-        }
-        @keyframes chew {
-            0% { height: 15px; }
-            100% { height: 35px; }
-        }
-
-        .ben-avatar-container.shaking {
-            animation: shake 0.3s ease;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
+        /* Animatsiyalar */
+        .ben-mouth.talking { height: 30px; animation: chew 0.15s infinite alternate; }
+        @keyframes chew { 0% { height: 12px; } 100% { height: 30px; } }
+        .ben-avatar-container.shaking { animation: shake 0.2s ease; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
         /* Dialog Oynasi */
         .bubble-chat {
-            background: #f1f2f6;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 20px 0;
-            min-height: 60px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 12px;
+            margin: 15px 0;
+            min-height: 55px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: var(--primary-color);
-            border: 2px solid #ddd;
+            border: 3px solid #e0e0e0;
+        }
+        .game-card.lab-mode .bubble-chat {
+            background: #2c3e50;
+            color: #2ecc71;
+            border-color: #16a085;
+        }
+
+        /* Laboratoriya idishlari */
+        .lab-flask-area {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+
+        .flask {
+            width: 45px;
+            height: 55px;
+            cursor: pointer;
+            transition: transform 0.2s;
             position: relative;
         }
-
-        .bubble-chat::after {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 0 10px 10px 10px;
-            border-style: solid;
-            border-color: transparent transparent #f1f2f6 transparent;
-        }
-
-        /* Tugmalar va Kiritish maydoni */
-        .quick-buttons {
+        .flask:hover { transform: scale(1.15) rotate(10deg); }
+        
+        /* Tugmalar va Elementlar */
+        .controls-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .btn {
             background: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 12px 10px;
+            border-radius: 15px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.2s;
         }
-
-        .btn:hover { background: #35271d; }
         .btn:active { transform: scale(0.95); }
-        .btn-accent { background: var(--accent-color); color: white; }
-        .btn-accent:hover { background: #e68a2e; }
+        .btn-accent { background: var(--accent-color); }
+        .btn-lab { background: #16a085; }
 
-        .input-group {
-            display: flex;
-            gap: 10px;
+        .game-card.lab-mode .btn:not(.btn-lab) {
+            background: #7f8c8d;
         }
 
-        .input-group input {
+        .input-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .input-box input {
             flex: 1;
             padding: 12px;
             border: 2px solid #ddd;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: 15px;
+            font-size: 15px;
             outline: none;
         }
-
-        .input-group input:focus { border-color: var(--accent-color); }
-
-        /* Admin Panel Dizayni */
-        .admin-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 30px;
-            width: 100%;
-            max-width: 600px;
-            display: none;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-box {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .stat-box h4 { font-size: 12px; color: #777; text-transform: uppercase; }
-        .stat-box p { font-size: 22px; font-weight: bold; margin-top: 5px; color: #222; }
-
-        .form-section {
-            margin-bottom: 25px;
-            background: #fdfdfd;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 12px;
-        }
-
-        .form-section h3 { margin-bottom: 10px; font-size: 16px; }
-
-        .word-list {
-            max-height: 150px;
-            overflow-y: auto;
-            background: #f1f2f6;
-            border-radius: 12px;
-            padding: 10px;
-            list-style: none;
-        }
-
-        .word-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: white;
-            margin-bottom: 6px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            font-size: 14px;
-        }
-
-        .btn-delete {
-            background: var(--danger-color);
+        .game-card.lab-mode .input-box input {
+            background: #2c3e50;
             color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
+            border-color: #16a085;
         }
 
-        .badge-system { background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
-        .badge-custom { background: #d1e7dd; color: #0f5132; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
-
-        /* Yordamchi klass */
-        .hidden { display: none !important; }
+        /* Admin Panel */
+        .admin-card {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            width: 100%;
+            max-width: 550px;
+            display: none;
+            border: 4px solid var(--accent-color);
+        }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .stat-box { background: #f8f9fa; padding: 10px; border-radius: 10px; text-align: center; border-bottom: 3px solid var(--accent-color); }
+        .word-list { max-height: 140px; overflow-y: auto; background: #eee; padding: 10px; list-style: none; border-radius: 10px; text-align: left; }
+        .word-item { display: flex; justify-content: space-between; padding: 6px; background: white; margin-bottom: 5px; border-radius: 5px; font-size: 14px; }
+        .btn-delete { background: var(--danger-color); color: white; border: none; padding: 2px 6px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- 1. ASOSIY TALAB: TALKING BEN SAHIFASI -->
+        <!-- BOSH SAHIFA (BEN VA LABORATORIYA) -->
         <div id="gameView" class="game-card">
-            <a href="?mode=admin" class="admin-link-badge">Admin ⚙️</a>
-            <h2 style="color: var(--primary-color);">Talking Ben</h2>
-            <p style="font-size: 14px; color: #666;">Savol bering yoki tugmalarni bosing!</p>
+            <h2 id="mainTitle" style="color: var(--primary-color);">Talking Ben</h2>
+            <p id="subTitle" style="font-size: 13px; color: #777; margin-bottom: 5px;">Ben bilan muloqot qiling yoki laboratoriyaga o'ting!</p>
 
-            <!-- Ben Personaji -->
+            <!-- Ben -->
             <div id="benAvatar" class="ben-avatar-container">
                 <div class="ben-face">
                     <div class="ben-ear left"></div>
@@ -336,4 +220,32 @@
                 </div>
             </div>
 
-            <!-- Ben javob beradigan joy -->
+            <!-- Ben javob berish ekrani -->
+            <div id="chatBubble" class="bubble-chat">Ben uxlamoqda... 💤</div>
+
+            <!-- LABORATORIYA ELEMENTLARI -->
+            <div id="labArea" class="lab-flask-area" style="display: none;">
+                <svg class="flask" onclick="mixChemical('Qizil')" viewBox="0 0 30 40"><path d="M12,5 L18,5 L18,12 L26,32 A4,4 0 0,1 22,37 L8,37 A4,4 0 0,1 4,32 L12,12 Z" fill="#e74c3c"/></svg>
+                <svg class="flask" onclick="mixChemical('Ko\'k')" viewBox="0 0 30 40"><path d="M12,5 L18,5 L18,12 L26,32 A4,4 0 0,1 22,37 L8,37 A4,4 0 0,1 4,32 L12,12 Z" fill="#3498db"/></svg>
+                <svg class="flask" onclick="mixChemical('Yashil')" viewBox="0 0 30 40"><path d="M12,5 L18,5 L18,12 L26,32 A4,4 0 0,1 22,37 L8,37 A4,4 0 0,1 4,32 L12,12 Z" fill="#2ecc71"/></svg>
+            </div>
+
+            <!-- Boshqaruv tugmalari -->
+            <div class="controls-grid">
+                <button class="btn btn-lab" id="toggleLabBtn" onclick="toggleLaboratory()">Laboratoriya 🧪</button>
+                <button class="btn btn-accent" onclick="triggerBenAction('Eugh')">Yegulik berish 🍗</button>
+                <button class="btn" onclick="triggerBenAction('Hahaha')">Kulgini ko'rish 😂</button>
+                <button class="btn btn-accent" onclick="askBenRandomly()">Tasodifiy Telefon ☎️</button>
+            </div>
+
+            <!-- SAVOL BERISH JOYI -->
+            <div class="input-box">
+                <input type="text" id="userInput" placeholder="Ben-ga savol bering (Masalan: Ertaga yomg'ir yog'adimi?)" onkeypress="checkEnter(event)">
+                <button class="btn" onclick="askBenQuestion()">So'rash</button>
+            </div>
+        </div>
+
+        <!-- ADMIN PANEL (Yashirin rejim) -->
+        <div id="adminView" class="admin-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                function checkAdminRoute() {const params = new URLSearchParams(window.location.search);if (params.get('mode') === 'admin') {const pass = prompt("Admin parolini kiriting:");if (pass === "admin777") {document.getElementById('gameView').style.display = 'none';document.getElementById('adminView').style.display = 'block';renderAdminList();} else {alert("Xato! Bosh sahifaga qaytasiz.");window.location.href = window.location.pathname;}}}function exitAdmin() { window.location.href = window.location.pathname; }// Ben Ovozi va Harakati (Original Ben kabi yo'g'on va do'rilaydigan)function triggerBenAction(text) {const bubble = document.getElementById('chatBubble');const mouth = document.getElementById('benMouth');const avatar = document.getElementById('benAvatar');bubble.innerText = text;mouth.classList.add('talking');avatar.classList.add('shaking');if ('speechSynthesis' in window) {window.speechSynthesis.cancel();// Yo'g'on va sekin talaffuz effektini berishlet vocalText = text;if (text === "Eugh") vocalText = "Oooogh";if (text === "Hahaha") vocalText = "Ha ha ha ha";if (text === "Yes") vocalText = "Yyeess";const speech = new SpeechSynthesisUtterance(vocalText);speech.lang = 'en-US';// BEN OVOZI PARAMETRLARI:speech.pitch = 0.3; // Maksimal yo'g'on ovozspeech.rate = 0.75; // Cho'zib, sekin gapirishspeech.volume = 1.0;window.speechSynthesis.speak(speech);}setTimeout(() => {mouth.classList.remove('talking');avatar.classList.remove('shaking');}, 1400);updateStatCount('benQuestionsCount');}// Tasodifiy telefon javobi yoki savol berish mantiqifunction askBenRandomly() {const fullList = [...defaultResponses, ...customResponses];const rand = Math.floor(Math.random() * fullList.length);triggerBenAction(fullList[rand]);}function askBenQuestion() {const input = document.getElementById('userInput');if (input.value.trim() === "") return;input.value = "";document.getElementById('chatBubble').innerText = "Hmmm... 📞";setTimeout(() => {askBenRandomly();}, 600);}function checkEnter(e) { if (e.key === 'Enter') askBenQuestion(); }// KIMYOVIY LABORATORIYA FUNKSIYASIfunction toggleLaboratory() {isLabMode = !isLabMode;const card = document.getElementById('gameView');const labArea = document.getElementById('labArea');const toggleBtn = document.getElementById('toggleLabBtn');const body = document.body;if (isLabMode) {card.classList.add('lab-mode');body.style.backgroundColor = "var(--bg-lab)";labArea.style.display = "flex";toggleBtn.innerText = "Uyga qaytish 🏠";document.getElementById('chatBubble').innerText = "Laboratoriyaga xush kelibsiz! Idishlarni aralashtiring.";} else {card.classList.remove('lab-mode');body.style.backgroundColor = "var(--bg-home)";labArea.style.display = "none";toggleBtn.innerText = "Laboratoriya 🧪";document.getElementById('chatBubble').innerText = "Ben kutmoqda...";}}function mixChemical(color) {document.getElementById('chatBubble').innerText = ${color} suyuqlik quyildi... ⚗️;setTimeout(() => {const reactions = ["BOOM! Portlash yuz berdi! 💥", "Uf-f, zaharli gaz chiqdi! 💨", "Ajoyib ko'pikli reaksiya! 🧼", "Idish sindi! 🧪"];const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];document.getElementById('chatBubble').innerText = randomReaction;triggerBenAction("Eugh");}, 1000);}// Ko'zlarni sichqonchaga qarab harakatlantirishfunction setupEyeTracking() {document.addEventListener('mousemove', (e) => {const pupils = document.querySelectorAll('.ben-pupil');pupils.forEach(p => {const box = p.getBoundingClientRect();const x = (e.clientX - box.left) / 25;const y = (e.clientY - box.top) / 25;p.style.transform = translate(${Math.max(-4, Math.min(4, x))}px, ${Math.max(-4, Math.min(4, y))}px);});});}// ADMIN PANEL AMALLARIfunction renderAdminList() {const list = document.getElementById('responsesList');list.innerHTML = "";defaultResponses.forEach(r => {list.innerHTML += <li class="word-item"><span>${r}</span><span style="color:#777; font-size:11px;">Asosiy</span></li>;});customResponses.forEach((r, i) => {list.innerHTML +=  <li class="word-item"> <span>${r}</span> <button class="btn-delete" onclick="deleteResponse(${i})">O'chirish</button> </li>;});document.getElementById('s3').innerText = defaultResponses.length + customResponses.length;}function addNewResponse() {const input = document.getElementById('newResponseInput');const val = input.value.trim();if (val) {customResponses.push(val);localStorage.setItem('benAdminAnswers', JSON.stringify(customResponses));input.value = "";renderAdminList();}}function deleteResponse(index) {customResponses.splice(index, 1);localStorage.setItem('benAdminAnswers', JSON.stringify(customResponses));renderAdminList();}function setupStats() {let visits = localStorage.getItem('benVisitsCount') || 350;let questions = localStorage.getItem('benQuestionsCount') || 1200;visits = parseInt(visits) + 1;localStorage.setItem('benVisitsCount', visits);document.getElementById('s1').innerText = visits;document.getElementById('s2').innerText = questions;}function updateStatCount(key) {let count = localStorage.getItem(key) || 1200;count = parseInt(count) + 1;localStorage.setItem(key, count);const el = document.getElementById('s2');if(el) el.innerText = count;}
