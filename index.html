@@ -1,270 +1,2635 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Talking Dog Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
+<title>Talking Ben/title>
 
-body{
-margin:0;
-background:#222;
-overflow:hidden;
-font-family:Arial;
-}
-
-canvas{
-display:block;
-}
-
-#ui{
-position:absolute;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-}
-
-button{
-
-padding:15px 25px;
-margin:8px;
-font-size:18px;
-border:none;
-border-radius:12px;
-cursor:pointer;
-
-}
-
-#text{
-
-position:absolute;
-top:20px;
-width:100%;
-text-align:center;
-font-size:32px;
-color:white;
-
-}
-
-</style>
+<link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<div id="text">Talking Dog</div>
+<div id="title">
+🐶 Talking Dog AI
+</div>
 
-<div id="ui">
 
-<button onclick="talk()">🎤 Talk</button>
+<div id="speech">
+Salom! Menga savol ber.
+</div>
 
-<button onclick="yes()">👍 Yes</button>
 
-<button onclick="no()">👎 No</button>
+<div id="scene"></div>
 
-<button onclick="laugh()">😂 Laugh</button>
+
+<div id="controls">
+
+<input id="question"
+placeholder="Savolingizni yozing...">
+
+
+<button onclick="askDog()">
+🎤 So'rash
+</button>
+
+
+<button onclick="laugh()">
+😂 Kuldirish
+</button>
+
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-<script>
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
+body{
+
+margin:0;
+overflow:hidden;
+background:linear-gradient(#87ceeb,#ffffff);
+font-family:Arial;
+
+}
+
+
+#scene{
+
+width:100vw;
+height:100vh;
+
+}
+
+
+#title{
+
+position:absolute;
+top:20px;
+width:100%;
+text-align:center;
+font-size:40px;
+z-index:5;
+
+}
+
+
+#speech{
+
+position:absolute;
+top:90px;
+width:100%;
+text-align:center;
+font-size:25px;
+color:#222;
+z-index:5;
+
+}
+
+
+#controls{
+
+position:absolute;
+bottom:30px;
+width:100%;
+text-align:center;
+z-index:5;
+
+}
+
+
+input{
+
+width:300px;
+padding:15px;
+border-radius:15px;
+border:2px solid #333;
+font-size:18px;
+
+}
+
+
+button{
+
+padding:15px 25px;
+margin:5px;
+border-radius:15px;
+font-size:18px;
+cursor:pointer;
+
+}
+import * as THREE from 
+"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+
+// SCENE
 
 const scene=new THREE.Scene();
 
-scene.background=new THREE.Color(0x444444);
+scene.background=
+new THREE.Color(0x87ceeb);
 
-const camera=new THREE.PerspectiveCamera(
-70,
+
+// CAMERA
+
+const camera=
+new THREE.PerspectiveCamera(
+60,
 window.innerWidth/window.innerHeight,
 0.1,
 1000
 );
 
-camera.position.z=5;
+camera.position.z=6;
 
-const renderer=new THREE.WebGLRenderer({antialias:true});
 
-renderer.setSize(window.innerWidth,window.innerHeight);
+// RENDER
 
-document.body.appendChild(renderer.domElement);
+const renderer=
+new THREE.WebGLRenderer({
+antialias:true
+});
 
-const light=new THREE.DirectionalLight(0xffffff,2);
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+
+document
+.getElementById("scene")
+.appendChild(renderer.domElement);
+
+
+// LIGHT
+
+const light=
+new THREE.DirectionalLight(
+0xffffff,
+3
+);
 
 light.position.set(3,5,5);
 
 scene.add(light);
 
-const ambient=new THREE.AmbientLight(0xffffff,1);
 
-scene.add(ambient);
-
-// Body
-
-const body=new THREE.Mesh(
-
-new THREE.BoxGeometry(1.8,2,1),
-
-new THREE.MeshStandardMaterial({color:0x8b5a2b})
-
+scene.add(
+new THREE.AmbientLight(
+0xffffff,
+1
+)
 );
+
+
+// DOG BODY
+
+const fur=
+new THREE.MeshStandardMaterial(
+{
+color:0x9b5a2b
+});
+
+
+const body=
+new THREE.Mesh(
+new THREE.SphereGeometry(
+1.2,
+32,
+32
+),
+fur
+);
+
+body.scale.y=1.3;
 
 scene.add(body);
 
-// Head
 
-const head=new THREE.Mesh(
+// HEAD
 
-new THREE.BoxGeometry(1.5,1.4,1.4),
+const head=
+new THREE.Mesh(
 
-new THREE.MeshStandardMaterial({color:0xa66a3d})
+new THREE.SphereGeometry(
+0.9,
+32,
+32
+),
+
+fur
 
 );
 
-head.position.y=1.8;
+head.position.y=1.7;
 
 scene.add(head);
 
-// Nose
 
-const nose=new THREE.Mesh(
+// EYES
 
-new THREE.BoxGeometry(.3,.2,.5),
+function createEye(x){
 
-new THREE.MeshStandardMaterial({color:0x111111})
+const eye=
+new THREE.Mesh(
+
+new THREE.SphereGeometry(
+0.13,
+20,
+20
+),
+
+new THREE.MeshStandardMaterial(
+{
+color:"black"
+})
 
 );
 
-nose.position.set(0,1.6,.9);
+eye.position.set(
+x,
+1.9,
+0.8
+);
+
+scene.add(eye);
+
+return eye;
+
+}
+
+
+const leftEye=createEye(-0.3);
+const rightEye=createEye(0.3);
+
+
+// NOSE
+
+const nose=
+new THREE.Mesh(
+
+new THREE.SphereGeometry(
+0.2,
+20,
+20
+),
+
+new THREE.MeshStandardMaterial(
+{
+color:"black"
+})
+
+);
+
+
+nose.position.set(
+0,
+1.5,
+1
+);
+
 
 scene.add(nose);
 
-// Eyes
 
-function eye(x){
-
-const e=new THREE.Mesh(
-
-new THREE.SphereGeometry(.09),
-
-new THREE.MeshStandardMaterial({color:0xffffff})
-
-);
-
-e.position.set(x,2,.72);
-
-scene.add(e);
-
-}
-
-eye(-.3);
-
-eye(.3);
+// ANIMATION
 
 let talking=false;
 
-let speed=0;
-
-function speak(text){
-
-document.getElementById("text").innerHTML=text;
-
-const u=new SpeechSynthesisUtterance(text);
-
-speechSynthesis.speak(u);
-
-}
-
-function talk(){
-
-const words=[
-
-"Hello!",
-
-"How are you?",
-
-"I am happy.",
-
-"Nice to meet you.",
-
-"Woof!"
-
-];
-
-const t=words[Math.floor(Math.random()*words.length)];
-
-talking=true;
-
-speed=.1;
-
-speak(t);
-
-}
-
-function yes(){
-
-talking=true;
-
-speed=.15;
-
-speak("Yes");
-
-}
-
-function no(){
-
-talking=true;
-
-speed=.15;
-
-speak("No");
-
-}
-
-function laugh(){
-
-talking=true;
-
-speed=.2;
-
-speak("Ha ha ha");
-
-}
 
 function animate(){
 
 requestAnimationFrame(animate);
 
-body.rotation.y+=0.003;
 
-head.rotation.y+=0.003;
+// ko'z harakati
+
+leftEye.scale.y=
+1+Math.sin(Date.now()*0.005)*0.1;
+
+
+rightEye.scale.y=
+leftEye.scale.y;
+
+
+// burun harakati
 
 if(talking){
 
-nose.position.z=.9+Math.sin(Date.now()*speed)*0.15;
-
-}else{
-
-nose.position.z=.9;
+nose.position.y=
+1.5+
+Math.sin(Date.now()*0.02)*0.05;
 
 }
 
-renderer.render(scene,camera);
+
+// bosh harakati
+
+head.rotation.y=
+Math.sin(Date.now()*0.001)*0.2;
+
+
+renderer.render(
+scene,
+camera
+);
 
 }
 
-speechSynthesis.onvoiceschanged=function(){};
-
-window.speechSynthesis.addEventListener("end",()=>{
-
-talking=false;
-
-});
 
 animate();
 
-</script>
 
-</body>
-</html>
+
+// VOICE
+
+function speak(text){
+
+document.getElementById("speech")
+.innerHTML=text;
+
+
+let voice=
+new SpeechSynthesisUtterance(text);
+
+
+speechSynthesis.speak(voice);
+
+}
+
+
+// SAVOL JAVOB
+
+window.askDog=function(){
+
+let q=
+document.getElementById("question").value;
+
+
+let answer;
+
+
+if(q.includes("ism")){
+
+answer="Mening ismim Aqlli It!";
+
+}
+
+else if(q.includes("salom")){
+
+answer="Salom! Qalaysan?";
+
+}
+
+else if(q.includes("nima")){
+
+answer="Men sun'iy intellektli itman.";
+
+}
+
+else{
+
+answer="Qiziq savol ekan, o'ylab ko'raman.";
+
+}
+
+
+talking=true;
+
+speak(answer);
+
+
+setTimeout(()=>{
+
+talking=false;
+
+},3000);
+
+
+}
+
+
+
+// KULGI
+
+window.laugh=function(){
+
+talking=true;
+
+speak("Ha ha ha!");
+
+
+setTimeout(()=>{
+
+talking=false;
+
+},2000);
+
+}
+<button onclick="startListening()">🎤 Gapirish</button>
+// ================================
+// MICROPHONE SYSTEM
+// ================================
+
+window.startListening=function(){
+
+const SpeechRecognition =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+
+if(!SpeechRecognition){
+
+speak("Kechirasiz, mikrofon ishlamayapti.");
+
+return;
+
+}
+
+
+const recognition =
+new SpeechRecognition();
+
+
+recognition.lang="uz-UZ";
+
+recognition.start();
+
+
+document.getElementById("speech")
+.innerHTML="Eshitayapman...";
+
+
+recognition.onresult=function(event){
+
+let text =
+event.results[0][0].transcript;
+
+
+document.getElementById("question").value=text;
+
+
+aiAnswer(text);
+
+};
+
+
+};
+
+
+// ================================
+// AI JAVOB TIZIMI
+// ================================
+
+
+function aiAnswer(question){
+
+question =
+question.toLowerCase();
+
+
+let answer="";
+
+
+if(
+question.includes("salom")
+){
+
+answer=
+"Salom do'stim! Men seni eshitayapman.";
+
+}
+
+
+else if(
+question.includes("ism")
+){
+
+answer=
+"Mening ismim Aqlli Kuchuk.";
+
+}
+
+
+else if(
+question.includes("yaxshi")
+){
+
+answer=
+"Rahmat! Men ham juda yaxshiman.";
+
+}
+
+
+else if(
+question.includes("kim")
+){
+
+answer=
+"Men sun'iy intellekt yordamida ishlaydigan 3D itman.";
+
+}
+
+
+else if(
+question.includes("hazil")
+){
+
+answer=
+"Nega it kompyuter oldiga o'tirdi? Chunki sichqonchani ushlamoqchi edi!";
+
+}
+
+
+else{
+
+answer=
+"Bu savol qiziq ekan. Men hali o'rganayapman.";
+
+}
+
+
+talking=true;
+
+
+speak(answer);
+
+
+setTimeout(()=>{
+
+talking=false;
+
+},4000);
+
+
+}
+
+
+
+// ================================
+// OGO'Z ANIMATSIYASI
+// ================================
+
+
+const mouthGeometry =
+new THREE.SphereGeometry(
+0.25,
+20,
+20
+);
+
+
+const mouthMaterial =
+new THREE.MeshStandardMaterial(
+{
+color:0x220000
+}
+);
+
+
+const mouth =
+new THREE.Mesh(
+mouthGeometry,
+mouthMaterial
+);
+
+
+mouth.scale.set(
+1,
+0.2,
+0.4
+);
+
+
+mouth.position.set(
+0,
+1.35,
+0.9
+);
+
+
+scene.add(mouth);
+
+
+
+function mouthAnimation(){
+
+if(talking){
+
+mouth.scale.y =
+0.2+
+Math.abs(
+Math.sin(
+Date.now()*0.03
+)
+)
+*0.5;
+
+
+}
+else{
+
+
+mouth.scale.y=0.2;
+
+
+}
+
+
+requestAnimationFrame(
+mouthAnimation
+);
+
+}
+
+
+mouthAnimation();
+
+
+
+// ================================
+// QULOQ QIMIRLASH
+// ================================
+
+
+const earMaterial =
+new THREE.MeshStandardMaterial(
+{
+color:0x704214
+}
+);
+
+
+const leftEar =
+new THREE.Mesh(
+new THREE.SphereGeometry(
+0.35
+),
+earMaterial
+);
+
+
+leftEar.position.set(
+-0.8,
+2,
+0
+);
+
+
+scene.add(leftEar);
+
+
+
+const rightEar =
+leftEar.clone();
+
+
+rightEar.position.x=0.8;
+
+
+scene.add(rightEar);
+
+
+
+function earMove(){
+
+leftEar.rotation.z =
+Math.sin(
+Date.now()*0.003
+)*0.4;
+
+
+rightEar.rotation.z =
+-Math.sin(
+Date.now()*0.003
+)*0.4;
+
+
+requestAnimationFrame(
+earMove
+);
+
+}
+
+
+earMove();
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+app.use(cors());
+
+app.use(express.json());
+
+
+// Oddiy xotira
+
+let memory = {
+    name: "",
+    facts: []
+};
+
+
+// AI javob funksiyasi
+
+function dogAI(question){
+
+    question =
+    question.toLowerCase();
+
+
+    let answer="";
+
+
+    if(question.includes("ismim")){
+
+        let name =
+        question.replace("ismim","")
+        .trim();
+
+
+        memory.name=name;
+
+
+        answer =
+        "Yaxshi, eslab qolaman. Sening isming "+name;
+
+    }
+
+
+    else if(question.includes("men haqimda")){
+
+        answer =
+        "Men eslab qolgan narsalar: "
+        +
+        memory.facts.join(", ");
+
+    }
+
+
+    else if(question.includes("salom")){
+
+        if(memory.name){
+
+            answer =
+            "Salom "+memory.name+
+            "! Yana ko'rishganimdan xursandman.";
+
+        }
+
+        else{
+
+            answer =
+            "Salom! Men aqlli itman.";
+
+        }
+
+    }
+
+
+    else if(question.includes("qandaysan")){
+
+        answer =
+        "Men yaxshi ishlayapman!";
+
+    }
+
+
+    else if(question.includes("hazil")){
+
+        answer =
+        "Itlar internetga kirsa, suyak emas WiFi qidiradi!";
+
+    }
+
+
+    else{
+
+        answer =
+        "Bu haqida hali o'rganmaganman, lekin eslab qolishim mumkin.";
+
+        memory.facts.push(question);
+
+    }
+
+
+    return answer;
+
+}
+
+
+
+// API
+
+app.post("/chat",(req,res)=>{
+
+
+    const question =
+    req.body.message;
+
+
+    const answer =
+    dogAI(question);
+
+
+    res.json({
+
+        reply:answer
+
+    });
+
+
+});
+
+
+
+app.listen(5000,()=>{
+
+console.log(
+"Talking Dog AI server 5000 portda ishlayapti"
+);
+
+});
+async function aiAnswer(question){
+
+
+try{
+
+
+const response =
+await fetch(
+"http://localhost:5000/chat",
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:
+JSON.stringify(
+{
+message:question
+}
+)
+
+});
+
+
+const data =
+await response.json();
+
+
+
+talking=true;
+
+
+speak(
+data.reply
+);
+
+
+
+setTimeout(()=>{
+
+talking=false;
+
+},4000);
+
+
+
+}
+
+catch(error){
+
+
+speak(
+"Server bilan bog'lanishda xato bo'ldi."
+);
+
+
+}
+
+
+}
+const OpenAI = require("openai");
+
+
+const client = new OpenAI({
+
+apiKey: process.env.AI_API_KEY
+
+});
+
+
+
+let mood = "happy";
+
+
+let history = [
+
+{
+role:"system",
+
+content:
+`
+Sen aqlli 3D it yordamchisan.
+Isming Aqlli Kuchuk.
+Do'stona gapir.
+Javoblarni qisqa va qiziqarli qil.
+Kayfiyating bor.
+`
+}
+
+];
+
+
+
+function changeMood(text){
+
+
+if(text.includes("xafa") ||
+text.includes("yomon")){
+
+mood="sad";
+
+}
+
+else if(text.includes("rahmat") ||
+text.includes("zo'r")){
+
+mood="happy";
+
+}
+
+else{
+
+mood="normal";
+
+}
+
+
+}
+
+
+
+async function askAI(message){
+
+
+changeMood(message);
+
+
+
+history.push({
+
+role:"user",
+
+content:message
+
+});
+
+
+
+const result =
+await client.chat.completions.create({
+
+model:"gpt-4.1-mini",
+
+messages:history,
+
+});
+
+
+let reply =
+result.choices[0]
+.message.content;
+
+
+
+history.push({
+
+role:"assistant",
+
+content:reply
+
+});
+
+
+
+return reply;
+
+}
+
+
+
+module.exports={
+askAI
+};
+require("dotenv").config();
+
+
+const express=require("express");
+
+const cors=require("cors");
+
+
+const {
+askAI
+}=require("./ai");
+
+
+const app=express();
+
+
+app.use(cors());
+
+app.use(express.json());
+
+
+
+app.post("/chat",
+async(req,res)=>{
+
+
+try{
+
+
+let answer =
+await askAI(
+req.body.message
+);
+
+
+
+res.json({
+
+reply:answer
+
+});
+
+
+}
+
+catch(e){
+
+
+res.json({
+
+reply:
+"Men hozir biroz charchadim."
+
+});
+
+
+}
+
+
+});
+
+
+
+app.listen(5000,()=>{
+
+console.log(
+"AI Dog server ishga tushdi"
+);
+
+});
+function setMood(mood){
+
+document.getElementById("title")
+.innerHTML =
+"🐶 Kayfiyat: "+mood;
+
+}
+if(data.reply.includes("xafa")){
+
+setMood("😢 xafa");
+
+}
+
+else{
+
+setMood("😊 quvnoq");
+
+}
+import * as THREE from 
+"https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+
+
+import {GLTFLoader}
+from
+"https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/GLTFLoader.js";
+
+
+
+// SAHNA
+
+const scene =
+new THREE.Scene();
+
+
+scene.background =
+new THREE.Color(0x87ceeb);
+
+
+
+const camera =
+new THREE.PerspectiveCamera(
+60,
+window.innerWidth/window.innerHeight,
+0.1,
+100
+);
+
+
+camera.position.set(
+0,
+1.5,
+5
+);
+
+
+
+const renderer =
+new THREE.WebGLRenderer(
+{
+antialias:true
+});
+
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+
+document.body.appendChild(
+renderer.domElement
+);
+
+
+
+// YORUG'LIK
+
+
+scene.add(
+new THREE.HemisphereLight(
+0xffffff,
+0x444444,
+3
+)
+);
+
+
+
+// MODEL
+
+
+let dog;
+
+
+const loader =
+new GLTFLoader();
+
+
+
+loader.load(
+
+"models/dog.glb",
+
+
+function(gltf){
+
+
+dog =
+gltf.scene;
+
+
+dog.scale.set(
+1,
+1,
+1
+);
+
+
+scene.add(dog);
+
+
+
+console.log(
+"Dog model yuklandi"
+);
+
+
+
+},
+
+undefined,
+
+
+function(error){
+
+console.log(
+"Model xatosi",
+error
+);
+
+}
+
+);
+
+
+
+// KO'Z KUZATISH
+
+
+let mouse =
+{
+x:0,
+y:0
+};
+
+
+
+window.addEventListener(
+"mousemove",
+(e)=>{
+
+
+mouse.x =
+(e.clientX /
+window.innerWidth)
+*2-1;
+
+
+mouse.y =
+-(e.clientY /
+window.innerHeight)
+*2+1;
+
+
+});
+
+
+
+function eyeFollow(){
+
+
+if(!dog)
+return;
+
+
+
+dog.rotation.y =
+mouse.x*0.3;
+
+
+dog.rotation.x =
+mouse.y*0.1;
+
+
+}
+
+
+
+// OVOZ PAYTIDA LAB
+
+
+let talking=false;
+
+
+
+function mouthMove(){
+
+
+if(!dog)
+return;
+
+
+
+if(talking){
+
+
+dog.position.y =
+Math.sin(
+Date.now()*0.01
+)*0.03;
+
+
+}
+
+else{
+
+
+dog.position.y=0;
+
+
+}
+
+
+}
+
+
+
+// ANIMATSIYA
+
+
+function animate(){
+
+
+requestAnimationFrame(
+animate
+);
+
+
+eyeFollow();
+
+
+mouthMove();
+
+
+renderer.render(
+scene,
+camera
+);
+
+
+}
+
+
+
+animate();
+
+
+
+// OVOZ FUNKSIYASI
+
+
+window.say=function(text){
+
+
+talking=true;
+
+
+let voice =
+new SpeechSynthesisUtterance(
+text
+);
+
+
+speechSynthesis.speak(
+voice
+);
+
+
+
+voice.onend=function(){
+
+talking=false;
+
+};
+
+
+}
+{
+  "name": "talking-dog-ai",
+  "version": "1.0.0",
+  "main": "main.js",
+
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+
+  "dependencies": {
+    "electron": "latest"
+  },
+
+  "devDependencies": {
+    "electron-builder": "latest"
+  },
+
+  "build": {
+    "appId": "com.talkingdog.ai",
+    "productName": "Talking Dog AI",
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
+const {
+app,
+BrowserWindow
+}=require("electron");
+
+
+const path=require("path");
+
+
+function createWindow(){
+
+
+const win =
+new BrowserWindow({
+
+width:1200,
+
+height:800,
+
+
+webPreferences:{
+
+nodeIntegration:false
+
+}
+
+});
+
+
+win.loadFile(
+path.join(
+__dirname,
+"../frontend/index.html"
+)
+);
+
+
+}
+
+
+
+app.whenReady()
+.then(()=>{
+
+
+createWindow();
+
+
+});
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+<uses-permission android:name="android.permission.INTERNET"/>
+  function speakMobile(text){
+
+let speech =
+new SpeechSynthesisUtterance(text);
+
+
+speech.lang="uz-UZ";
+
+
+speech.rate=1;
+
+
+speech.pitch=1.1;
+
+
+speechSynthesis.speak(
+speech
+);
+
+}
+  // ==============================
+// DOG EMOTION SYSTEM
+// ==============================
+
+let emotion = "happy";
+
+let blinkTime = 0;
+
+
+// Kayfiyat o'zgartirish
+
+export function setEmotion(type){
+
+    emotion = type;
+
+}
+
+
+
+// Model yuz animatsiyasi
+
+export function animateFace(dog){
+
+    if(!dog)
+        return;
+
+
+
+    // ko'z pirpirashi
+
+    blinkTime += 0.02;
+
+
+    let blink =
+    Math.abs(
+        Math.sin(blinkTime)
+    );
+
+
+    dog.traverse(
+    child=>{
+
+
+        if(child.name.includes("Eye")){
+
+
+            child.scale.y =
+            0.2 + blink*0.8;
+
+
+        }
+
+
+    });
+
+
+
+    // kayfiyat
+
+
+    if(emotion==="happy"){
+
+
+        dog.rotation.z =
+        Math.sin(Date.now()*0.003)
+        *0.03;
+
+
+    }
+
+
+
+    if(emotion==="sad"){
+
+
+        dog.rotation.x =
+        -0.05;
+
+
+    }
+
+
+
+    if(emotion==="angry"){
+
+
+        dog.rotation.y =
+        0.1;
+
+
+    }
+
+}// ==============================
+// DOG EMOTION SYSTEM
+// ==============================
+
+let emotion = "happy";
+
+let blinkTime = 0;
+
+
+// Kayfiyat o'zgartirish
+
+export function setEmotion(type){
+
+    emotion = type;
+
+}
+
+
+
+// Model yuz animatsiyasi
+
+export function animateFace(dog){
+
+    if(!dog)
+        return;
+
+
+
+    // ko'z pirpirashi
+
+    blinkTime += 0.02;
+
+
+    let blink =
+    Math.abs(
+        Math.sin(blinkTime)
+    );
+
+
+    dog.traverse(
+    child=>{
+
+
+        if(child.name.includes("Eye")){
+
+
+            child.scale.y =
+            0.2 + blink*0.8;
+
+
+        }
+
+
+    });
+
+
+
+    // kayfiyat
+
+
+    if(emotion==="happy"){
+
+
+        dog.rotation.z =
+        Math.sin(Date.now()*0.003)
+        *0.03;
+
+
+    }
+
+
+
+    if(emotion==="sad"){
+
+
+        dog.rotation.x =
+        -0.05;
+
+
+    }
+
+
+
+    if(emotion==="angry"){
+
+
+        dog.rotation.y =
+        0.1;
+
+
+    }
+
+}
+  import {
+animateFace,
+setEmotion
+}
+from "./animations.js";
+  function moodFromText(text){
+
+
+text=text.toLowerCase();
+
+
+
+if(
+text.includes("rahmat") ||
+text.includes("zo'r")
+){
+
+setEmotion("happy");
+
+}
+
+
+
+else if(
+text.includes("xafa") ||
+text.includes("yomon")
+){
+
+setEmotion("sad");
+
+}
+
+
+
+else if(
+text.includes("jahlim")
+){
+
+setEmotion("angry");
+
+}
+
+
+
+}
+  const fs=require("fs");
+
+
+function saveMemory(data){
+
+fs.writeFileSync(
+
+"memory.json",
+
+JSON.stringify(
+data,
+null,
+2
+)
+
+);
+
+}
+
+
+
+function loadMemory(){
+
+return JSON.parse(
+
+fs.readFileSync(
+"memory.json"
+)
+
+);
+
+}
+  let memory =
+loadMemory();
+
+
+
+function remember(text){
+
+
+if(text.includes("mening ismim")){
+
+
+let name =
+text.replace(
+"mening ismim",
+""
+)
+.trim();
+
+
+
+memory.name=name;
+
+
+saveMemory(memory);
+
+
+
+return
+"Ismingni eslab qoldim "+name;
+
+
+}
+
+
+
+return null;
+
+}
+  // =============================
+// LIP SYNC SYSTEM
+// =============================
+
+let audioContext;
+let analyser;
+let dataArray;
+
+
+export function startLipSync(audio){
+
+    audioContext =
+    new AudioContext();
+
+
+    const source =
+    audioContext
+    .createMediaElementSource(audio);
+
+
+    analyser =
+    audioContext
+    .createAnalyser();
+
+
+    analyser.fftSize=256;
+
+
+    source.connect(analyser);
+
+    analyser.connect(
+        audioContext.destination
+    );
+
+
+    dataArray =
+    new Uint8Array(
+        analyser.frequencyBinCount
+    );
+
+}
+
+
+
+export function animateMouth(dog){
+
+
+if(!dog || !analyser)
+return;
+
+
+
+analyser.getByteFrequencyData(
+    dataArray
+);
+
+
+
+let volume=0;
+
+
+for(let i=0;i<dataArray.length;i++){
+
+volume+=dataArray[i];
+
+}
+
+
+volume/=dataArray.length;
+
+
+
+let open =
+volume/100;
+
+
+
+dog.traverse(
+child=>{
+
+
+if(child.name==="Mouth"){
+
+
+child.scale.y =
+0.2 + open;
+
+
+}
+
+
+});
+
+
+}
+  import {
+animateMouth
+}
+from "./lipsync.js";
+  <audio id="voice"></audio>
+  function speak(text){
+
+
+let speech =
+new SpeechSynthesisUtterance(text);
+
+
+speech.lang="uz-UZ";
+
+
+speech.rate=1;
+
+
+speech.pitch=1.1;
+
+
+
+talking=true;
+
+
+
+speech.onend=function(){
+
+talking=false;
+
+};
+
+
+
+speechSynthesis.speak(
+speech
+);
+
+
+}
+  const mongoose = require("mongoose");
+
+
+async function connectDB(){
+
+await mongoose.connect(
+"mongodb://127.0.0.1:27017/talkingdog"
+);
+
+
+console.log(
+"MongoDB ulandi"
+);
+
+
+}
+
+
+module.exports = connectDB;
+  const mongoose =
+require("mongoose");
+
+
+const UserSchema =
+new mongoose.Schema({
+
+name:{
+type:String,
+default:""
+},
+
+
+history:[
+
+{
+
+question:String,
+
+answer:String,
+
+date:{
+type:Date,
+default:Date.now
+}
+
+}
+
+],
+
+
+mood:{
+type:String,
+default:"happy"
+}
+
+
+});
+
+
+
+module.exports =
+mongoose.model(
+"User",
+UserSchema
+);
+  require("dotenv").config();
+
+
+const express =
+require("express");
+
+const cors =
+require("cors");
+
+
+const connectDB =
+require("./database");
+
+
+const User =
+require("./models/User");
+
+
+
+const app =
+express();
+
+
+app.use(cors());
+
+app.use(express.json());
+
+
+
+connectDB();
+
+
+
+// Suhbat API
+
+app.post(
+"/chat",
+async(req,res)=>{
+
+
+let question =
+req.body.message;
+
+
+
+let answer =
+"Men seni eslab qolaman.";
+
+
+
+let user =
+await User.findOne();
+
+
+
+if(!user){
+
+
+user =
+new User();
+
+
+}
+
+
+
+if(
+question.includes("ismim")
+){
+
+
+user.name =
+question
+.replace(
+"ismim",
+""
+)
+.trim();
+
+
+
+answer =
+"Ismingni eslab qoldim "
++
+user.name;
+
+
+}
+
+
+
+else if(user.name){
+
+
+answer =
+"Salom "
++
+user.name
++
+"! Men seni taniyman.";
+
+
+}
+
+
+
+user.history.push({
+
+question:question,
+
+answer:answer
+
+});
+
+
+
+await user.save();
+
+
+
+res.json({
+
+reply:answer
+
+});
+
+
+});
+
+
+
+
+
+app.listen(
+5000,
+()=>{
+
+console.log(
+"Server 5000 portda"
+);
+
+});
+  app.get(
+"/memory",
+async(req,res)=>{
+
+
+let user =
+await User.findOne();
+
+
+res.json(
+user
+||
+{}
+);
+
+
+});
+  app.get(
+"/memory",
+async(req,res)=>{
+
+
+let user =
+await User.findOne();
+
+
+res.json(
+user
+||
+{}
+);
+
+
+});
+  const mongoose=require("mongoose");
+
+
+const UserSchema=new mongoose.Schema({
+
+username:{
+type:String,
+unique:true
+},
+
+
+password:String,
+
+
+created:{
+type:Date,
+default:Date.now
+}
+
+});
+
+
+module.exports =
+mongoose.model(
+"User",
+UserSchema
+);
+  const mongoose=require("mongoose");
+
+
+const MemorySchema=
+new mongoose.Schema({
+
+userId:String,
+
+
+messages:[
+
+{
+
+question:String,
+
+answer:String,
+
+date:{
+type:Date,
+default:Date.now
+}
+
+}
+
+]
+
+
+});
+
+
+module.exports =
+mongoose.model(
+"Memory",
+MemorySchema
+);
+  const bcrypt=require("bcrypt");
+const jwt=require("jsonwebtoken");
+
+const User=require("./models/User");
+
+
+
+async function register(
+username,
+password
+){
+
+
+let hash =
+await bcrypt.hash(
+password,
+10
+);
+
+
+let user =
+new User({
+
+username:username,
+
+password:hash
+
+});
+
+
+await user.save();
+
+
+return user;
+
+}
+
+
+
+
+async function login(
+username,
+password
+){
+
+
+let user =
+await User.findOne({
+username
+});
+
+
+if(!user)
+return null;
+
+
+
+let ok =
+await bcrypt.compare(
+password,
+user.password
+);
+
+
+
+if(!ok)
+return null;
+
+
+
+let token =
+jwt.sign(
+
+{
+id:user._id
+},
+
+"SECRET_KEY",
+
+{
+expiresIn:"7d"
+}
+
+);
+
+
+
+return token;
+
+}
+
+
+
+module.exports={
+register,
+login
+};
+  const {
+register,
+login
+}
+=
+require("./auth");
+
+
+
+app.post(
+"/register",
+async(req,res)=>{
+
+
+let user =
+await register(
+
+req.body.username,
+
+req.body.password
+
+);
+
+
+res.json({
+
+success:true,
+
+id:user._id
+
+});
+
+
+});
+
+
+
+
+app.post(
+"/login",
+async(req,res)=>{
+
+
+let token =
+await login(
+
+req.body.username,
+
+req.body.password
+
+);
+
+
+
+if(!token){
+
+return res.json({
+
+success:false
+
+});
+
+}
+
+
+
+res.json({
+
+success:true,
+
+token
+
+});
+
+
+});
+  async function login(){
+
+
+let username =
+document.getElementById(
+"user"
+).value;
+
+
+
+let password =
+document.getElementById(
+"pass"
+).value;
+
+
+
+let result =
+await fetch(
+
+"http://localhost:5000/login",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
+
+body:JSON.stringify({
+
+username,
+
+password
+
+})
+
+}
+
+);
+
+
+
+let data =
+await result.json();
+
+
+
+if(data.success){
+
+
+localStorage.setItem(
+"token",
+data.token
+);
+
+
+alert(
+"Kirish muvaffaqiyatli"
+);
+
+
+}
+
+else{
+
+
+alert(
+"Login xato"
+);
+
+
+}
+
+
+}
+  // ==========================
+// SOUND SYSTEM
+// ==========================
+
+
+function playSound(file){
+
+
+let audio =
+new Audio(
+"sounds/"+file
+);
+
+
+audio.volume=0.5;
+
+
+audio.play();
+
+
+}
+
+
+
+
+window.dogHello=function(){
+
+playSound(
+"hello.mp3"
+);
+
+
+speak(
+"Salom do'stim!"
+);
+
+
+}
+
+
+
+window.dogLaugh=function(){
+
+playSound(
+"laugh.mp3"
+);
+
+
+speak(
+"Ha ha ha!"
+);
+
+
+}
+  let cameraDistance=5;
+
+
+
+window.addEventListener(
+"wheel",
+(e)=>{
+
+
+cameraDistance +=
+e.deltaY*0.005;
+
+
+cameraDistance =
+Math.max(
+2,
+Math.min(
+8,
+cameraDistance
+)
+);
+
+
+camera.position.z =
+cameraDistance;
+
+
+});
+  let idleTime=0;
+
+
+function idleAnimation(dog){
+
+
+if(!dog)
+return;
+
+
+
+idleTime+=0.03;
+
+
+
+dog.position.y =
+Math.sin(idleTime)
+*0.05;
+
+
+
+dog.rotation.y =
+Math.sin(idleTime/2)
+*0.05;
+
+
+}
+  window.onerror=function(
+message
+){
+
+console.log(
+"Xato:",
+message
+);
+
+
+};
+  renderer.setPixelRatio(
+window.devicePixelRatio
+);
+
+
+renderer.shadowMap.enabled=true;
+  dog.traverse(
+object=>{
+
+
+if(object.isMesh){
+
+
+object.castShadow=true;
+
+
+object.frustumCulled=true;
+
+
+}
+
+
+});
+  
